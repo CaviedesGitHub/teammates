@@ -233,6 +233,14 @@ public class Logic {
             throws InvalidParametersException, EntityAlreadyExistsException {
         assert instructor != null;
 
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("instructorsLogic.createInstructor(instructor)");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+
         return instructorsLogic.createInstructor(instructor);
     }
 

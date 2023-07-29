@@ -20,6 +20,13 @@ import teammates.common.util.Const;
 import teammates.common.util.Logger;
 import teammates.storage.api.InstructorsDb;
 
+
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.SnsException;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+
 /**
  * Handles operations related to instructors.
  *
@@ -27,6 +34,8 @@ import teammates.storage.api.InstructorsDb;
  * @see InstructorsDb
  */
 public final class InstructorsLogic {
+
+    private final SnsClient snsClient;  //static
 
     private static final Logger log = Logger.getLogger();
 
@@ -42,6 +51,9 @@ public final class InstructorsLogic {
 
     private InstructorsLogic() {
         // prevent initialization
+        snsClient=SnsClient.builder()
+                       .httpClientBuilder(ApacheHttpClient.builder())
+                       .build();
     }
 
     public static InstructorsLogic inst() {
@@ -85,7 +97,47 @@ public final class InstructorsLogic {
      */
     public InstructorAttributes createInstructor(InstructorAttributes instructorToAdd)
             throws InvalidParametersException, EntityAlreadyExistsException {
+                
+            //String message = "{\"email\":\"caviedex72@gmail.com\", \"name\":\"eduardo2\", \"googleId\":\"201\", \"courseId\":\"801\", \"isArchived\":false, \"registrationKey\":\"789-qwe-098\", \"role\":\"Algun Rol\", \"isDisplayedToStudents\": true, \"displayedName\":\"Eduardo1 Caviedes\"}";
+            String message="{\"email\":\""+instructorToAdd.getEmail();
+            message=message+"\", \"name\":\""+instructorToAdd.getName();
+            message=message+"\", \"googleId\":\""+instructorToAdd.getGoogleId();
+            message=message+"\", \"courseId\":\""+instructorToAdd.getCourseId();
+            message=message+"\", \"isArchived\":"+instructorToAdd.isArchived();
+            message=message+", \"registrationKey\":\""+instructorToAdd.getKey();
+            message=message+"\", \"role\":\""+instructorToAdd.getRole();
+            message=message+"\", \"isDisplayedToStudents\":"+instructorToAdd.isDisplayedToStudents();
+            message=message+", \"displayedName\":\""+instructorToAdd.getDisplayedName();
+            message=message+"\"}";
+            System.out.println("------------------------------");
+            System.out.println("------------------------------");
+            System.out.println("------------------------------");
+            System.out.println(message);
+            System.out.println("------------------------------");
+            System.out.println("------------------------------");
+            System.out.println("------------------------------");
+            
+            String topicArn = "arn:aws:sns:us-east-1:969818376875:temaNormal";
+            pubTopic(snsClient, message, topicArn);
+            snsClient.close();
         return instructorsDb.createEntity(instructorToAdd);
+    }
+
+    public static void pubTopic(SnsClient snsClient, String message, String topicArn) {
+
+        try {
+            PublishRequest request = PublishRequest.builder()
+                .message(message)
+                .topicArn(topicArn)
+                .build();
+
+            PublishResponse result = snsClient.publish(request);
+            System.out.println(result.messageId() + " Message sent. Status is " + result.sdkHttpResponse().statusCode());
+
+         } catch (SnsException e) {
+            System.err.println(e.awsErrorDetails().errorMessage());
+            System.exit(1);
+         }
     }
 
     /**

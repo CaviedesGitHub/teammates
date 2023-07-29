@@ -152,7 +152,13 @@ abstract class EntitiesDb<E extends BaseEntity, A extends EntityAttributes<E>> {
         assert entityToSave != null;
 
         log.info("Entity saved: " + JsonUtils.toJson(entityToSave));
-
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("saveEntity(E entityToSave)");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
         ofy().save().entity(entityToSave).now();
     }
 

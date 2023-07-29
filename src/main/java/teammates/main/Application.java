@@ -28,7 +28,19 @@ public final class Application {
 
     @SuppressWarnings("PMD.SignatureDeclareThrowsException") // ok to ignore as this is a startup method
     public static void main(String[] args) throws Exception {
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("main");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+
         System.setProperty("org.eclipse.jetty.LEVEL", "INFO");
+
+
+        //Handler handler = new Handler();
+        //handler.sendRequest();
 
         Server server = new Server(Config.getPort());
 
@@ -82,6 +94,13 @@ public final class Application {
         // By using the server.join() the server thread will join with the current thread.
         // See https://docs.oracle.com/javase/8/docs/api/java/lang/Thread.html#join-- for more details.
         server.join();
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("Fin main");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
     }
 
 }

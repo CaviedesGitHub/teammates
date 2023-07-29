@@ -24,6 +24,11 @@ import teammates.storage.entity.Instructor;
 import teammates.storage.search.InstructorSearchManager;
 import teammates.storage.search.SearchManagerFactory;
 
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.SnsException;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
 /**
  * Handles CRUD operations for instructors.
  *
@@ -74,6 +79,13 @@ public final class InstructorsDb extends EntitiesDb<Instructor, InstructorAttrib
         while (numTries < MAX_KEY_REGENERATION_TRIES) {
             Instructor updatedEntity = convertToEntityForSaving(originalInstructor);
             if (!updatedEntity.getRegistrationKey().equals(originalInstructor.getKey())) {
+                System.out.println("------------------------------");
+                System.out.println("------------------------------");
+                System.out.println("------------------------------");
+                System.out.println("regenerateEntityKey(InstructorAttributes originalInstructor)");
+                System.out.println("------------------------------");
+                System.out.println("------------------------------");
+                System.out.println("------------------------------");
                 saveEntity(updatedEntity);
                 return makeAttributes(updatedEntity);
             }
@@ -246,6 +258,13 @@ public final class InstructorsDb extends EntitiesDb<Instructor, InstructorAttrib
         instructor.setDisplayedName(newAttributes.getDisplayedName());
         instructor.setInstructorPrivilegeAsText(newAttributes.getInstructorPrivilegesAsText());
 
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("updateInstructorByGoogleId(InstructorAttributes.UpdateOptionsWithGoogleId updateOptions)");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
         saveEntity(instructor);
 
         newAttributes = makeAttributes(instructor);
@@ -299,12 +318,63 @@ public final class InstructorsDb extends EntitiesDb<Instructor, InstructorAttrib
         instructor.setIsDisplayedToStudents(newAttributes.isDisplayedToStudents());
         instructor.setDisplayedName(newAttributes.getDisplayedName());
         instructor.setInstructorPrivilegeAsText(newAttributes.getInstructorPrivilegesAsText());
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("updateInstructorByEmail(InstructorAttributes.UpdateOptionsWithEmail updateOptions)");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+        System.out.println("------------------------------");
+
+        String message="{\"email\":\""+instructor.getEmail();
+        message=message+"\", \"name\":\""+instructor.getName();
+        message=message+"\", \"googleId\":\""+instructor.getGoogleId();
+        message=message+"\", \"courseId\":\""+instructor.getCourseId();
+        message=message+"\", \"role\":\""+instructor.getRole();
+        message=message+"\"}";
+
+        /*message=message+"\", \"isArchived\":false";
+        message=message+", \"registrationKey\":\"xyz-asd-qwe-456";
+        message=message+"\", \"role\":\""+instructor.getRole();
+        message=message+"\", \"isDisplayedToStudents\":"+instructor.isDisplayedToStudents();
+        message=message+", \"displayedName\":\""+instructor.getDisplayedName();
+        message=message+"\"}";*/
+
+
+        System.out.println("------------------------------");
+        System.out.println(message);
+        System.out.println("------------------------------");
 
         saveEntity(instructor);
+        
+        SnsClient snsClient;
+        snsClient=SnsClient.builder()
+                       .httpClientBuilder(ApacheHttpClient.builder())
+                       .build();
+        String topicArn = "arn:aws:sns:us-east-1:969818376875:temaNormal";
+        pubTopic(snsClient, message, topicArn);
+        snsClient.close();
 
         newAttributes = makeAttributes(instructor);
 
         return newAttributes;
+    }
+
+    public static void pubTopic(SnsClient snsClient, String message, String topicArn) {
+
+        try {
+            PublishRequest request = PublishRequest.builder()
+                .message(message)
+                .topicArn(topicArn)
+                .build();
+
+            PublishResponse result = snsClient.publish(request);
+            System.out.println(result.messageId() + " Message sent. Status is " + result.sdkHttpResponse().statusCode());
+
+         } catch (SnsException e) {
+            System.err.println(e.awsErrorDetails().errorMessage());
+            System.exit(1);
+         }
     }
 
     /**

@@ -48,6 +48,16 @@ dependencies {
 
     annotationProcessor(objectify)
 
+    implementation(platform("software.amazon.awssdk:bom:2.20.56"))
+    implementation("software.amazon.awssdk:s3")
+    implementation("software.amazon.awssdk:sso")
+    implementation("software.amazon.awssdk:ssooidc")
+    implementation("software.amazon.awssdk:apache-client")
+    implementation("software.amazon.awssdk:sns")
+    
+
+    implementation("org.slf4j:slf4j-simple:2.0.5")
+
     implementation("com.google.auth:google-auth-library-oauth2-http:1.8.1")
     implementation(platform("com.google.cloud:google-cloud-bom:0.176.0"))
     implementation("com.google.cloud:google-cloud-datastore")
